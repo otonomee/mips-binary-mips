@@ -1,0 +1,39 @@
+// Pseudo-instruction test cases
+// Testing all pseudo-instructions: ble, blt, bge, bgt, move, li
+
+// BLE - Branch if Less Than or Equal
+// ble $rs, $rt, label → slt $at, $rt, $rs + beq $at, $0, label
+ble $2, $3, target1  -> slt $at, $3, $2 + beq $at, $0, target1
+
+// BLT - Branch if Less Than
+// blt $rs, $rt, label → slt $at, $rs, $rt + bne $at, $0, label
+blt $4, $5, target2  -> slt $at, $4, $5 + bne $at, $0, target2
+
+// BGE - Branch if Greater Than or Equal
+// bge $rs, $rt, label → slt $at, $rs, $rt + beq $at, $0, label
+bge $6, $7, target3  -> slt $at, $6, $7 + beq $at, $0, target3
+
+// BGT - Branch if Greater Than
+// bgt $rs, $rt, label → slt $at, $rt, $rs + bne $at, $0, label
+bgt $8, $9, target4  -> slt $at, $9, $8 + bne $at, $0, target4
+
+// MOVE - Move register to register
+// move $rd, $rs → add $rd, $rs, $0
+move $10, $11        -> add $10, $11, $0
+
+// LI - Load Immediate (16-bit fits in one instruction)
+// li $rt, imm → ori $rt, $0, imm (when -32768 ≤ imm ≤ 32767)
+li $12, 100          -> ori $12, $0, 100
+
+// LI - Load Immediate (32-bit requires two instructions)
+// li $rt, imm → lui $rt, upper + ori $rt, $rt, lower (when imm > 32767 or imm < -32768)
+li $13, 65536        -> lui $13, 1 + ori $13, $13, 0
+
+// Additional test cases for comprehensive coverage
+ble $t0, $t1, loop   -> slt $at, $t1, $t0 + beq $at, $0, loop
+blt $s0, $s1, done   -> slt $at, $s0, $s1 + bne $at, $0, done
+bge $a0, $a1, skip   -> slt $at, $a0, $a1 + beq $at, $0, skip
+bgt $v0, $v1, exit   -> slt $at, $v1, $v0 + bne $at, $0, exit
+move $t2, $t3        -> add $t2, $t3, $0
+li $t4, 255          -> ori $t4, $0, 255
+li $t5, 1048576      -> lui $t5, 16 + ori $t5, $t5, 0
