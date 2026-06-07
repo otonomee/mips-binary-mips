@@ -21,10 +21,16 @@ void mipsToBinary(ParsedInstruction *parsed, char *binaryOutput) {
     if (type == 'R') {
         // R-type: opcode(6) rs(5) rt(5) rd(5) shamt(5) funct(6)
         char fnCode[7] = {0};
-        char rsBinary[6] = "00000";
-        char rtBinary[6] = "00000";
-        char rdBinary[6] = "00000";
-        char shamtBinary[6] = "00000";
+        char rsBinary[6];
+        char rtBinary[6];
+        char rdBinary[6];
+        char shamtBinary[6];
+
+        // Initialize buffers with zeros
+        strcpy(rsBinary, "00000");
+        strcpy(rtBinary, "00000");
+        strcpy(rdBinary, "00000");
+        strcpy(shamtBinary, "00000");
 
         mipsToFnCode(parsed->instruction, fnCode);
 
@@ -81,9 +87,14 @@ void mipsToBinary(ParsedInstruction *parsed, char *binaryOutput) {
 
     } else if (type == 'I') {
         // I-type: opcode(6) rs(5) rt(5) immediate(16)
-        char rsBinary[6] = "00000";
-        char rtBinary[6] = "00000";
-        char immBinary[17] = "0000000000000000";
+        char rsBinary[6];
+        char rtBinary[6];
+        char immBinary[17];
+
+        // Initialize buffers with zeros
+        strcpy(rsBinary, "00000");
+        strcpy(rtBinary, "00000");
+        strcpy(immBinary, "0000000000000000");
 
         if (strcmp(parsed->instruction, "lw") == 0 || strcmp(parsed->instruction, "sw") == 0 ||
             strcmp(parsed->instruction, "lbu") == 0 || strcmp(parsed->instruction, "lhu") == 0 ||
