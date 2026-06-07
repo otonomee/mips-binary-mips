@@ -6,7 +6,12 @@
 int extractRegisterNumber(char *reg) {
     // Handle $0, $1, etc.
     if (reg[1] >= '0' && reg[1] <= '9') {
-        return atoi(&reg[1]);
+        int regNum = atoi(&reg[1]);
+        // Bounds check: valid MIPS registers are 0-31
+        if (regNum < 0 || regNum > 31) {
+            return 0; // Return $0 if out of bounds
+        }
+        return regNum;
     }
 
     // Handle $zero, $at, $v0, $a0, $t0, $s0, etc.
@@ -71,18 +76,30 @@ int parseImmediate(char *imm, int *isLabel) {
 
 void parseMipsInstruction(char *mips, ParsedInstruction *output) {
     char temp[128];
-    strcpy(temp, mips);
+    strncpy(temp, mips, sizeof(temp) - 1);
+    temp[sizeof(temp) - 1] = '\0'; // Ensure null termination
 
     // Extract instruction (first token)
     char *token = strtok(temp, " ,()");
-    strcpy(output->instruction, token);
+
+    // Check for null pointer before using token
+    if (token == NULL) {
+        output->instruction[0] = '\0';
+        output->numOperands = 0;
+        output->isLabel = 0;
+        return;
+    }
+
+    strncpy(output->instruction, token, sizeof(output->instruction) - 1);
+    output->instruction[sizeof(output->instruction) - 1] = '\0'; // Ensure null termination
 
     output->numOperands = 0;
     output->isLabel = 0;
 
     // Extract operands
     while ((token = strtok(NULL, " ,()")) != NULL && output->numOperands < MAX_OPERANDS) {
-        strcpy(output->operands[output->numOperands], token);
+        strncpy(output->operands[output->numOperands], token, sizeof(output->operands[output->numOperands]) - 1);
+        output->operands[output->numOperands][sizeof(output->operands[output->numOperands]) - 1] = '\0'; // Ensure null termination
         output->numOperands++;
     }
 
