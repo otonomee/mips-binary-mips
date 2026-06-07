@@ -3,6 +3,9 @@
 #include <string.h>
 #include "instruction-code-translator.h"
 #include "radix-translator.h"
+#include "mips-parser.h"
+#include "pseudo-instruction-handler.h"
+#include "mips-to-binary.h"
 #define MAX_LENGTH 64
 #define BINARY_LENGTH 32
 #define HEX_LENGTH 8
@@ -45,9 +48,64 @@ int main() {
     printf("OUTPUT:\n\n");
 
     switch (inputType) {
-        case INPUT_MIPS:
-        // TODO
+        case INPUT_MIPS: {
+            ParsedInstruction parsed;
+            parseMipsInstruction(userInput, &parsed);
+
+            // Check if pseudo-instruction
+            if (isPseudoInstruction(parsed.instruction)) {
+                PseudoExpansion expansion;
+                expandPseudoInstruction(&parsed, &expansion);
+
+                printf("Pseudo-instruction detected: %s\n", parsed.instruction);
+                printf("Expanding '%s' into:\n\n", userInput);
+
+                // Display expansion with explanations
+                for (int i = 0; i < expansion.numExpanded; i++) {
+                    printf("  %d) %s\n", i + 1, expansion.expandedInstructions[i]);
+                    printf("     # %s\n", expansion.explanations[i]);
+                }
+
+                printf("\nBINARY EQUIVALENT:\n");
+                printf("HEX EQUIVALENT:\n");
+
+                // Convert each expanded instruction
+                for (int i = 0; i < expansion.numExpanded; i++) {
+                    ParsedInstruction expandedParsed;
+                    parseMipsInstruction(expansion.expandedInstructions[i], &expandedParsed);
+
+                    char binary[33];
+                    mipsToBinary(&expandedParsed, binary);
+
+                    char hex[9];
+                    binaryToHex(binary, hex);
+
+                    printf("  %s: %s\n", expansion.expandedInstructions[i], binary);
+                    printf("  %s: %s\n", expansion.expandedInstructions[i], hex);
+
+                    if (expandedParsed.isLabel) {
+                        printf("  Note: Label '%s' uses placeholder offset 0\n",
+                               expandedParsed.operands[expandedParsed.numOperands - 1]);
+                    }
+                }
+            } else {
+                // Regular instruction - convert directly
+                char binary[33];
+                mipsToBinary(&parsed, binary);
+
+                char hex[9];
+                binaryToHex(binary, hex);
+
+                printf("BINARY EQUIVALENT: %s\n", binary);
+                printf("HEX EQUIVALENT: %s\n", hex);
+
+                if (parsed.isLabel) {
+                    printf("Note: Label '%s' uses placeholder offset 0\n",
+                           parsed.operands[parsed.numOperands - 1]);
+                }
+            }
             break;
+        }
         case INPUT_BINARY:
             binaryToHex(userInput, hexRep);
             printf("HEX EQUIVALENT: %s\n", hexRep);
