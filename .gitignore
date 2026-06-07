@@ -1,0 +1,12 @@
+# Build artifacts
+*.o
+*.hi
+mips-converter
+mips-converter-test
+main.exe
+
+# Documentation (Claude Code internal)
+docs/
+
+# macOS
+.DS_Store
