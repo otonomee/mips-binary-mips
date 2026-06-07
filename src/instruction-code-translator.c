@@ -161,3 +161,13 @@ void getInstruction(char *opCode, char *fnCode, char *output) {
         }
     }
 }
+
+void mipsToOpCode(char *instruction, char *output) {
+    // Same logic as getOpCode but takes instruction name
+    getOpCode(instruction, output);
+}
+
+void mipsToFnCode(char *instruction, char *output) {
+    // Same logic as getFnCode but takes instruction name
+    getFnCode(instruction, output);
+}
